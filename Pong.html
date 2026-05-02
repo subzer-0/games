@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            background-color: #1e1e1e;
+            color: white;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #controls {
+            width: min(90vw, 800px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        #controls label {
+            margin-right: 6px;
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+        #controls select,
+        #controls button {
+            padding: 6px 12px;
+            font-size: 0.95em;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #2a2a2a;
+            color: white;
+            cursor: pointer;
+        }
+        #controls select:disabled {
+            cursor: not-allowed;
+        }
+        #controls button[aria-pressed="false"] {
+            opacity: 0.6;
+        }
+        #game-container {
+            position: relative;
+            width: min(90vw, 800px);
+            aspect-ratio: 8 / 5;
+            border: 4px solid #fff;
+        }
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #111;
+        }
+        #overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.72);
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+        #overlay h2 { font-size: 2em; margin-bottom: 10px; }
+        #overlay p  { font-size: 1.1em; margin-bottom: 4px; }
+        #overlay button {
+            margin-top: 18px;
+            padding: 10px 28px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            background: #fbbf24;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #overlay button:hover { background: #fcd34d; }
+        .hidden { display: none !important; }
+        #hint {
+            margin-top: 10px;
+            font-size: 0.85em;
+            opacity: 0.7;
+            text-align: center;
+            max-width: min(90vw, 800px);
+        }
+    </style>
+</head>
+<body>
+    <h1>Pong</h1>
+    <div id="controls">
+        <div>
+            <label for="mode">Mode:</label>
+            <select id="mode"></select>
+        </div>
+        <div id="ai-wrapper">
+            <label for="ai-difficulty">AI:</label>
+            <select id="ai-difficulty"></select>
+        </div>
+        <button id="sound-toggle" type="button" aria-pressed="true">Sound: On</button>
+    </div>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="overlay">
+            <h2 id="overlay-title">Pong</h2>
+            <p id="overlay-subtitle">First to 7 wins.</p>
+            <button id="start-btn">Start</button>
+        </div>
+    </div>
+    <p id="hint">W / S to move</p>
+
+    <script src="js/pong/config.js"></script>
+    <script src="js/pong/sound.js"></script>
+    <script src="js/pong/render.js"></script>
+    <script src="js/pong/input.js"></script>
+    <script src="js/pong/ui.js"></script>
+    <script src="js/pong/game.js"></script>
+    <script src="js/pong/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            background-color: #1e1e1e;
+            color: white;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #hud {
+            width: 80vmin;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+        #hud > div {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 12px;
+            border-radius: 6px;
+        }
+        #controls {
+            width: 80vmin;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        #controls label {
+            margin-right: 6px;
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+        #controls select,
+        #controls button {
+            padding: 6px 12px;
+            font-size: 0.95em;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #2a2a2a;
+            color: white;
+            cursor: pointer;
+        }
+        #controls select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #controls button[aria-pressed="false"] {
+            opacity: 0.6;
+        }
+        #game-container {
+            position: relative;
+            width: 80vmin;
+            height: 80vmin;
+            background-color: #2a2a2a;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 2.5% 2.5%;
+            border: 5px solid #fff;
+            overflow: hidden;
+            touch-action: none;
+        }
+        .snake {
+            position: absolute;
+            background-color: #4ade80;
+            border-radius: 20%;
+        }
+        .snake.head {
+            background-color: #86efac;
+            border-radius: 30%;
+            z-index: 2;
+        }
+        .snake.head .eye {
+            position: absolute;
+            width: 22%;
+            height: 22%;
+            background: #111;
+            border-radius: 50%;
+            top: 22%;
+        }
+        .snake.head .eye.left  { left: 18%; }
+        .snake.head .eye.right { right: 18%; }
+        .food {
+            position: absolute;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+        }
+        .food.bonus {
+            background-color: #fbbf24;
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.9);
+            animation: pulse 0.5s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(0.85); }
+            to   { transform: scale(1.15); }
+        }
+        #overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.72);
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+        #overlay h2 { font-size: 2em; margin-bottom: 10px; }
+        #overlay p  { font-size: 1.1em; margin-bottom: 4px; }
+        #overlay button {
+            margin-top: 18px;
+            padding: 10px 28px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            background: #4ade80;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #overlay button:hover { background: #86efac; }
+        .hidden { display: none !important; }
+        .hint { font-size: 0.85em; opacity: 0.7; margin-top: 12px; max-width: 90%; }
+    </style>
+</head>
+<body>
+    <h1>Snake Game</h1>
+    <div id="hud">
+        <div id="score">Score: 0</div>
+        <div id="high-score">Best: 0</div>
+    </div>
+    <div id="controls">
+        <div>
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty"></select>
+        </div>
+        <button id="sound-toggle" type="button" aria-pressed="true">Sound: On</button>
+    </div>
+    <div id="game-container">
+        <div id="overlay">
+            <h2 id="overlay-title">Snake</h2>
+            <p id="overlay-subtitle">Eat food to grow. Don't hit yourself.</p>
+            <button id="start-btn">Start</button>
+            <p class="hint">Arrow keys / WASD &middot; P or Esc to pause &middot; swipe on mobile</p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
