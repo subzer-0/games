@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            min-height: 100vh;
+            background: #0a0418;
+            color: #fff;
+            font-family: 'VT323', monospace;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 80px;
+            min-height: 100vh;
+        }
+
+        /* synthwave grid floor */
+        body::before {
+            content: "";
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 50vh;
+            background-image:
+                linear-gradient(transparent 0%, #0a0418 80%),
+                linear-gradient(#ff00aa55 1px, transparent 1px),
+                linear-gradient(90deg, #ff00aa55 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            transform: perspective(400px) rotateX(55deg);
+            transform-origin: bottom;
+            animation: grid-scroll 1.5s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes grid-scroll {
+            from { background-position: 0 0, 0 0, 0 0; }
+            to   { background-position: 0 0, 0 40px, 0 0; }
+        }
+
+        /* CRT scanlines */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0px,
+                rgba(0, 0, 0, 0) 2px,
+                rgba(0, 0, 0, 0.18) 3px,
+                rgba(0, 0, 0, 0) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .stage {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 50px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .marquee {
+            font-family: 'Press Start 2P', monospace;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .marquee .small {
+            display: block;
+            font-size: clamp(0.7em, 2vw, 1em);
+            color: #ff66cc;
+            text-shadow: 0 0 8px #ff00aa;
+            margin-bottom: 18px;
+            letter-spacing: 4px;
+        }
+        .marquee h1 {
+            font-size: clamp(2em, 7vw, 4.2em);
+            background: linear-gradient(180deg, #ffec5c 0%, #ff7a00 60%, #ff007a 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(255, 0, 122, 0.6));
+            letter-spacing: 6px;
+            animation: flicker 4s infinite;
+        }
+        .marquee .blink {
+            display: block;
+            font-family: 'VT323', monospace;
+            font-size: clamp(1em, 2.4vw, 1.4em);
+            color: #5cffe1;
+            text-shadow: 0 0 8px #00e1c8;
+            margin-top: 22px;
+            letter-spacing: 2px;
+            animation: blink 1.1s steps(2, jump-none) infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes flicker {
+            0%, 92%, 100% { opacity: 1; }
+            93% { opacity: 0.55; }
+            94% { opacity: 1; }
+            96% { opacity: 0.7; }
+            97% { opacity: 1; }
+        }
+
+        .cabinets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
+            width: 100%;
+        }
+
+        .cabinet {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 22px 26px;
+            background: rgba(10, 4, 24, 0.75);
+            border: 3px solid var(--neon);
+            border-radius: 6px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+                0 0 18px var(--neon-soft),
+                0 0 38px var(--neon-soft);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .cabinet:hover, .cabinet:focus-visible {
+            transform: translateY(-4px);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                0 0 28px var(--neon),
+                0 0 58px var(--neon-soft);
+            outline: none;
+        }
+        .cabinet[data-game="snake"] {
+            --neon: #4ade80;
+            --neon-soft: rgba(74, 222, 128, 0.5);
+        }
+        .cabinet[data-game="pong"] {
+            --neon: #fbbf24;
+            --neon-soft: rgba(251, 191, 36, 0.55);
+        }
+
+        .screen {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: #050208;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            margin-bottom: 22px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .screen::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0) 0px,
+                rgba(255,255,255,0) 2px,
+                rgba(255,255,255,0.05) 3px,
+                rgba(255,255,255,0) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Snake pixel art */
+        .pixel-snake {
+            display: grid;
+            grid-template-columns: repeat(10, 12px);
+            grid-template-rows: repeat(8, 12px);
+            gap: 2px;
+        }
+        .pixel-snake span {
+            background: var(--neon);
+            box-shadow: 0 0 6px var(--neon);
+            border-radius: 2px;
+        }
+        .pixel-snake span.food {
+            background: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            border-radius: 50%;
+        }
+        .pixel-snake span.head {
+            background: #86efac;
+            box-shadow: 0 0 8px #86efac;
+        }
+
+        /* Pong illustration */
+        .pixel-pong {
+            position: relative;
+            width: 80%;
+            height: 70%;
+            border-left: 3px dashed rgba(255,255,255,0.2);
+            border-right: 3px dashed rgba(255,255,255,0.2);
+        }
+        .pixel-pong::before,
+        .pixel-pong::after {
+            content: "";
+            position: absolute;
+            width: 8px;
+            height: 32px;
+            background: var(--neon);
+            box-shadow: 0 0 8px var(--neon);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .pixel-pong::before { left: 4px; }
+        .pixel-pong::after { right: 4px; transform: translateY(-10%); }
+        .pixel-pong .ball {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            box-shadow: 0 0 8px #fff;
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+            animation: ball 2s ease-in-out infinite alternate;
+        }
+        @keyframes ball {
+            from { left: 20%; top: 30%; }
+            to   { left: 80%; top: 70%; }
+        }
+
+        .cabinet h2 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.4em;
+            color: var(--neon);
+            text-shadow: 0 0 10px var(--neon-soft);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+        .cabinet p {
+            font-size: 1.25em;
+            color: #cfd5e1;
+            margin-bottom: 18px;
+            text-align: center;
+            min-height: 2.6em;
+        }
+        .cabinet .play {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.85em;
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--neon);
+            border: 2px solid var(--neon);
+            letter-spacing: 3px;
+            text-shadow: 0 0 6px var(--neon-soft);
+        }
+        .cabinet:hover .play,
+        .cabinet:focus-visible .play {
+            background: var(--neon);
+            color: #0a0418;
+            text-shadow: none;
+        }
+
+        footer {
+            position: relative;
+            z-index: 2;
+            margin-top: 50px;
+            font-size: 1.1em;
+            color: #ff66cc;
+            letter-spacing: 3px;
+            text-align: center;
+        }
+        footer span { color: #5cffe1; }
+
+        @media (max-width: 520px) {
+            .marquee h1 { letter-spacing: 3px; }
+            .cabinet h2 { font-size: 1.1em; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stage">
+        <div class="marquee">
+            <span class="small">&gt;&gt; siteLABs. &lt;&lt;</span>
+            <h1>ARCADE</h1>
+            <span class="blink">SELECT YOUR GAME</span>
+        </div>
+
+        <div class="cabinets">
+            <a class="cabinet" data-game="snake" href="Snake.html" aria-label="Play Snake">
+                <div class="screen">
+                    <div class="pixel-snake" aria-hidden="true">
+                        <span style="grid-area: 4 / 2"></span>
+                        <span style="grid-area: 4 / 3"></span>
+                        <span style="grid-area: 4 / 4"></span>
+                        <span style="grid-area: 5 / 4"></span>
+                        <span style="grid-area: 6 / 4"></span>
+                        <span style="grid-area: 6 / 5"></span>
+                        <span style="grid-area: 6 / 6"></span>
+                        <span class="head" style="grid-area: 6 / 7"></span>
+                        <span class="food" style="grid-area: 3 / 9"></span>
+                    </div>
+                </div>
+                <h2>SNAKE</h2>
+                <p>Eat. Grow. Don't bite yourself.</p>
+                <span class="play">PLAY</span>
+            </a>
+
+            <a class="cabinet" data-game="pong" href="Pong.html" aria-label="Play Pong">
+                <div class="screen">
+                    <div class="pixel-pong" aria-hidden="true">
+                        <span class="ball"></span>
+                    </div>
+                </div>
+                <h2>PONG</h2>
+                <p>First to seven. May the best paddle win.</p>
+                <span class="play">PLAY</span>
+            </a>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 siteLABs. &middot; <span>1 PLAYER</span> &middot; <span>2 PLAYERS</span></footer>
+</body>
+</html>
