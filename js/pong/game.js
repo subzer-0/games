@@ -71,21 +71,46 @@ window.Pong.Game = class Game {
             const now = performance.now();
             const dt = Math.min((now - this.lastTime) / 16.6667, 2.5);
             this.lastTime = now;
+            if (window.Pong.pollGamepad) window.Pong.pollGamepad(this);
             this.update(dt);
         }
         this.renderer.draw(this);
         this.rafId = requestAnimationFrame(() => this.loop());
     }
 
+    movePaddleTo(paddle, targetY, dt) {
+        const speed = this.cfg.PADDLE_SPEED * dt;
+        const center = paddle.y + paddle.h / 2;
+        const diff = targetY - center;
+        if (Math.abs(diff) <= speed) paddle.y = targetY - paddle.h / 2;
+        else paddle.y += Math.sign(diff) * speed;
+    }
+
     update(dt) {
         const { COURT_HEIGHT: H, PADDLE_SPEED, BALL_SPEED_INCREMENT, BALL_MAX_SPEED, WIN_SCORE, COURT_WIDTH: W } = this.cfg;
+        const touch = this.touchTargets || { left: null, right: null };
+        const pad = this.padInput || { leftDir: 0, rightDir: 0 };
 
-        if (this.keys["KeyW"]) this.paddleL.y -= PADDLE_SPEED * dt;
-        if (this.keys["KeyS"]) this.paddleL.y += PADDLE_SPEED * dt;
+        if (touch.left != null) {
+            this.movePaddleTo(this.paddleL, touch.left, dt);
+        } else {
+            let dir = 0;
+            if (this.keys["KeyW"]) dir -= 1;
+            if (this.keys["KeyS"]) dir += 1;
+            if (dir === 0) dir = pad.leftDir;
+            this.paddleL.y += dir * PADDLE_SPEED * dt;
+        }
 
         if (this.mode === "2p") {
-            if (this.keys["ArrowUp"])   this.paddleR.y -= PADDLE_SPEED * dt;
-            if (this.keys["ArrowDown"]) this.paddleR.y += PADDLE_SPEED * dt;
+            if (touch.right != null) {
+                this.movePaddleTo(this.paddleR, touch.right, dt);
+            } else {
+                let dir = 0;
+                if (this.keys["ArrowUp"])   dir -= 1;
+                if (this.keys["ArrowDown"]) dir += 1;
+                if (dir === 0) dir = pad.rightDir;
+                this.paddleR.y += dir * PADDLE_SPEED * dt;
+            }
         } else {
             this.updateAI(dt);
         }

@@ -39,5 +39,14 @@
     game = new Game(renderer, sound, ui);
     ui.showStart();
     renderer.draw(game);
-    bindInput(game);
+    bindInput(game, canvas);
+
+    function metaPoll() {
+        requestAnimationFrame(metaPoll);
+        const inGameLoop = game.isRunning && !game.isPaused;
+        if (!inGameLoop && window.Pong.pollGamepad) {
+            window.Pong.pollGamepad(game);
+        }
+    }
+    metaPoll();
 })();

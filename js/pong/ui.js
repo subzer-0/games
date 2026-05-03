@@ -77,11 +77,12 @@ window.Pong.UI = class UI {
         this.elements.soundToggle.textContent = "Sound: " + (this.soundEnabled ? "On" : "Off");
         this.elements.soundToggle.setAttribute("aria-pressed", String(this.soundEnabled));
 
+        const isTouch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
         const p2Hint = this.mode === "2p"
-            ? "Left: W / S  ·  Right: ↑ / ↓"
-            : "W / S to move  ·  AI controls right paddle";
-        this.elements.hint.textContent =
-            p2Hint + "  ·  Space to start  ·  P or Esc to pause";
+            ? (isTouch ? "Touch left half · right half" : "Left: W / S  ·  Right: ↑ / ↓")
+            : (isTouch ? "Drag the left side to move" : "W / S to move  ·  AI controls right paddle");
+        const tail = isTouch ? "  ·  Tap canvas to start" : "  ·  Space to start  ·  P or Esc to pause";
+        this.elements.hint.textContent = p2Hint + tail;
     }
 
     setControlsDisabled(disabled) {

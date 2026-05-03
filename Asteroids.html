@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroids</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            background-color: #1e1e1e;
+            color: white;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        #controls {
+            width: min(90vw, 800px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        #controls label {
+            margin-right: 6px;
+            font-size: 0.95em;
+            opacity: 0.85;
+        }
+        #controls select,
+        #controls button {
+            padding: 6px 12px;
+            font-size: 0.95em;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #2a2a2a;
+            color: white;
+            cursor: pointer;
+        }
+        #controls select:disabled {
+            cursor: not-allowed;
+        }
+        #controls button[aria-pressed="false"] {
+            opacity: 0.6;
+        }
+        #game-container {
+            position: relative;
+            width: min(90vw, 800px);
+            aspect-ratio: 4 / 3;
+            border: 4px solid #fff;
+        }
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #050208;
+        }
+        #overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.72);
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+        #overlay h2 { font-size: 2em; margin-bottom: 10px; }
+        #overlay p  { font-size: 1.1em; margin-bottom: 4px; }
+        #overlay button {
+            margin-top: 18px;
+            padding: 10px 28px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            background: #5cffe1;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #overlay button:hover { background: #a8fff0; }
+        .hidden { display: none !important; }
+        #hint {
+            margin-top: 10px;
+            font-size: 0.85em;
+            opacity: 0.7;
+            text-align: center;
+            max-width: min(90vw, 800px);
+        }
+
+        #touch-controls {
+            display: none;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        #touch-controls .pad {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: auto;
+        }
+        #touch-controls .pad.left  { left: 12px;  bottom: 12px; flex-direction: row; }
+        #touch-controls .pad.right { right: 12px; bottom: 12px; align-items: flex-end; }
+        #touch-controls button {
+            width: 64px;
+            height: 64px;
+            border: 2px solid rgba(92, 255, 225, 0.7);
+            border-radius: 50%;
+            background: rgba(10, 4, 24, 0.5);
+            color: #5cffe1;
+            font-size: 1.6em;
+            font-weight: bold;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #touch-controls button:active {
+            background: rgba(92, 255, 225, 0.25);
+        }
+        @media (pointer: coarse) {
+            #touch-controls { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Asteroids</h1>
+    <div id="controls">
+        <div>
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty"></select>
+        </div>
+        <button id="sound-toggle" type="button" aria-pressed="true">Sound: On</button>
+    </div>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="touch-controls" aria-hidden="true">
+            <div class="pad left">
+                <button id="btn-left" type="button" aria-label="Rotate left">⟲</button>
+                <button id="btn-right" type="button" aria-label="Rotate right">⟳</button>
+            </div>
+            <div class="pad right">
+                <button id="btn-fire" type="button" aria-label="Fire">●</button>
+                <button id="btn-thrust" type="button" aria-label="Thrust">▲</button>
+            </div>
+        </div>
+        <div id="overlay">
+            <h2 id="overlay-title">Asteroids</h2>
+            <p id="overlay-subtitle">Survive the field. Don't get hit.</p>
+            <button id="start-btn">Start</button>
+        </div>
+    </div>
+    <p id="hint">←/→ rotate · ↑ thrust · Space fire · P/Esc pause</p>
+
+    <script src="js/asteroids/config.js"></script>
+    <script src="js/asteroids/sound.js"></script>
+    <script src="js/asteroids/render.js"></script>
+    <script src="js/asteroids/input.js"></script>
+    <script src="js/asteroids/ui.js"></script>
+    <script src="js/asteroids/game.js"></script>
+    <script src="js/asteroids/main.js"></script>
+</body>
+</html>
